@@ -3,13 +3,11 @@
 import time
 from os import system
 from selenium import webdriver
-from selenium.webdriver import ActionChains
-from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 
-print("환영합니다! 본 프로그램에 입력된 모든 정보는 절대 이용목적 이외의 목적으로 사용되지 않으며, 이용목적(로그인) 달성 시 지체 없이 파기됩니다. 개인정보 책임자: '조동성' *본 프로그램 사용 시 발생하는 모든 책임은 사용자 본인에게 귀속됩니다.*")
+print("환영합니다! 본 프로그램에 입력된 모든 정보는 절대 이용목적 이외의 목적으로 사용되지 않으며, 이용목적(로그인) 달성 시 지체 없이 파기됩니다. 개인정보 책임자: '조동성' *본 프로그램 사용 시 발생하는 모든 책임(개인정보/시스템상 중대한 버그 관련 제외)은 사용자 본인에게 귀속됩니다.*")
 print("AutoF5(with Firefox)\nCopyright (C) Dillot. All rights reserved.\n본 프로그램은 자유롭게 배포, 사용이 가능하며, 파일의 어떠한 2차 수정을 금합니다.\n\n")
 ID = input("EBS 온라인클래스 계정 아이디를 입력하세요.\n >>>")
 PW = input("EBS 온라인클래스 계정 비밀번호를 입력하세요.\n >>>")
@@ -17,8 +15,6 @@ system("cls")
 print("필수 정보가 모두 성공적으로 입력되었으며, 시스템 동작을 시작합니다.")
 
 driver = webdriver.Firefox()
-chain = ActionChains(driver)
-chain.key_down(Keys.ENTER).key_up(Keys.ENTER)
 
 # Login
 driver.get('https://ebsoc.co.kr/login')
