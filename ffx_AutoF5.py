@@ -4,8 +4,10 @@ import time
 from os import system
 from selenium import webdriver
 from selenium.common import exceptions
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
+from time import sleep
 
 while True:
     global MSGNUM, MSG
@@ -13,8 +15,13 @@ while True:
     print("AutoF5(with Firefox)\nCopyright (C) Dillot. All rights reserved.\n본 프로그램은 자유롭게 배포, 사용이 가능하며, 파일의 어떠한 2차 수정을 금합니다.\n\n")
     ID = input("EBS 온라인클래스 계정 아이디를 입력하세요.\n >>>")
     PW = input("EBS 온라인클래스 계정 비밀번호를 입력하세요.\n >>>")
-    MSGNUM = int(input("자동으로 입력할 메시지의 수를 입력하세요.\n >>>"))
-    if MSGNUM <= 0:
+    try:
+        MSGNUM = int(input("자동으로 입력할 메시지의 수를 입력하세요.\n >>>"))
+    except:
+        system("cls")
+        print("숫자만 입력해주세요. 처음부터 다시 시작합니다.")
+        continue
+    if MSGNUM < 0:
         system("cls")
         print("허용되지 않은 숫자가 확인되었습니다. 처음부터 다시 시작합니다.")
         continue
@@ -36,15 +43,16 @@ while True:
 system("cls")
 print("필수 정보가 모두 성공적으로 입력되었습니다. 엔터를 눌러 시스템을 시작하세요.")
 input()
+print("엔터 입력됨. 시스템 시작.")
 
-driver = webdriver.Firefox()
+driver = webdriver.Firefox(keep_alive=True)
 
 # Login
 driver.get('https://ebsoc.co.kr/login')
 
-username = driver.find_element_by_name("j_username")
-password = driver.find_element_by_name("j_password")
-login = driver.find_elements_by_css_selector('.img_type')[-1]
+username = driver.find_element(By.NAME, "j_username")
+password = driver.find_element(By.NAME, "j_password")
+login = driver.find_elements(By.CSS_SELECTOR, '.img_type')[-1]
 
 username.send_keys(ID)
 ID = None
@@ -65,7 +73,7 @@ time.sleep(4)
 def IsChatRoom():
     while True:
         try:
-            driver.find_element_by_css_selector(".btn.btn_xs.btn_darkgrey")
+            driver.find_element(By.CSS_SELECTOR, ".btn.btn_xs.btn_darkgrey")
             print("입장하기 버튼이 확인되어 다음 단계로 진행합니다.")
             break
         except exceptions.NoSuchElementException:
@@ -82,7 +90,7 @@ def Main():
         count += 1
         print(f"{count}번째 시도...")
         try:
-            enterchat = driver.find_element_by_css_selector(".btn.btn_xs.btn_darkgrey")
+            enterchat = driver.find_element(By.CSS_SELECTOR, ".btn.btn_xs.btn_darkgrey")
         except exceptions.NoSuchElementException:
             print("입장되기 버튼이 확인되지 않아 이전 단계로 넘어갑니다.")
             # GOTO IsChatRoom
@@ -104,11 +112,15 @@ def Main():
             time.sleep(3)
             another_window = list(set(driver.window_handles) - {driver.current_window_handle})[0]
             driver.switch_to.window(another_window)
+            check = 1
             for NOW in range(MSGNUM):
                 check = InputChat(NOW)
                 if check != 1:
                     break
-            if check != 1:    
+            if check != 1:
+                another_window = list(set(driver.window_handles) - {driver.current_window_handle})[0]
+                driver.current_window_handle.close()
+                driver.switch_to.window(another_window)
                 continue
             input(f"채팅방 입장 및 채팅 {MSGNUM}개 자동 입력에 모두 성공했습니다. 엔터를 눌러 시스템을 종료하세요.")
             break
@@ -119,9 +131,9 @@ def Main():
 def InputChat(NOW):
     try:
         time.sleep(2)
-        inputchat = driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[2]/div[2]/div[2]/textarea')
+        inputchat = driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[2]/div[2]/div[2]/textarea')
         inputchat.send_keys(MSG[NOW])
-        sendbutton = driver.find_element_by_css_selector('.btn.btn_md.btn_darkblue')
+        sendbutton = driver.find_element(By.CSS_SELECTOR, '.btn.btn_md.btn_darkblue')
         sendbutton.click()
         return 1
     except Exception as e:
@@ -131,21 +143,128 @@ def InputChat(NOW):
 
 def InputChatSystem(msg):
     try:
-        inputchat = driver.find_element_by_xpath('/html/body/div[1]/div/div/div/div[2]/div[2]/div[2]/textarea')
+        inputchat = driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[2]/div[2]/div[2]/textarea')
         inputchat.send_keys(msg)
-        sendbutton = driver.find_element_by_css_selector('.btn.btn_md.btn_darkblue')
+        sendbutton = driver.find_element(By.CSS_SELECTOR, '.btn.btn_md.btn_darkblue')
         sendbutton.click()
     except Exception as e:
         print(e)
 
+def AfterAll():
+    umm = input("채팅 입력 시스템이 시작될 예정입니다. N 혹은 n 을 입력하여 취소 및 시스템을 완전히 종료하고, 다른 아무 키나 입력하여 계속 진행하세요.")
+    if (umm == 'n') or (umm == 'N'):
+        exit()
+    while True:
+        text = input("전송할 텍스트를 입력하세요. >>>")
+        if text == 'exit()':
+            print("명령에 의해 시스템을 완전히 종료합니다.")
+            break
+        elif text == 'len(students)':
+            element = driver.find_elements(By.CSS_SELECTOR, '.count')[-1].text
+            print(f"명령에 의해 채팅방 인원수가 집계되었습니다. : {element}")
+            continue
+        elif text == 'students':
+            html_list = driver.find_element(By.ID, "mCSB_1_container")
+            print('-----------------1')
+            print(html_list)
+            print('-----------------2')
+            html_list_ = html_list.find_element(By.TAG_NAME, "ul")
+            print(html_list_)
+            print('-----------------3')
+            items = html_list_.find_elements(By.TAG_NAME, "li")
+            print(items)
+            print('-----------------4')
+            students = []
+            for item in items:
+                try:
+                    temp = item.find_element(By.XPATH, '//a[@href="#"]').text
+                except Exception as error:
+                    print(error)
+                students.append(temp)
+                print(item)
+                print('-----------------5')
+                print(temp)
+                print('-----------------6')
+            print(students)
+            print('-----------------7')
+            students = ', '.join(students)
+            print(f"명령에 의해 채팅방 전체 인원이 집계되었습니다. : {students}")
+            continue
+        elif text == 'offline_students':
+            html_list = driver.find_element(By.ID, "mCSB_1_container")
+            html_list_ = html_list.find_element(By.TAG_NAME, "ul")
+            items = html_list_.find_elements(By.CSS_SELECTOR, ".logout")
+            students = []
+            for item in items:
+                temp = item.find_element(By.XPATH, '//a[@href="#"]').text
+                students.append(temp)
+            students = ', '.join(students)
+            print(f"명령에 의해 채팅방 오프라인 인원이 집계되었습니다. : {students}")
+            continue
+        elif text == 'online_students':
+            html_list = driver.find_element(By.ID, "mCSB_1_container")
+            html_list_ = html_list.find_element(By.TAG_NAME, "ul")
+            items = html_list_.find_elements(By.TAG_NAME, "li")
+            all_students = []
+            for item in items:
+                temp = item.find_element(By.XPATH, '//a[@href="#"]').text
+                all_students.append(temp)
+            items = html_list_.find_elements(By.CSS_SELECTOR, ".logout")
+            off_students = []
+            for item in items:
+                temp = item.find_element(By.XPATH, '//a[@href="#"]').text
+                off_students.append(temp)
+            for student in all_students:
+                if student in off_students:
+                    all_students.remove(student)
+            students = ', '.join(all_students)
+            print(f"명령에 의해 채팅방 온라인 인원이 집계되었습니다. : {students}")
+            continue
+
+        InputChatSystem(text)
+
+def ChatListener():
+    chatlist = driver.find_element(By.ID, 'mCSB_2_container')
+
+    # get list of currently displayed messages
+    allCL = chatlist.find_elements_by_tag_name('div')
+    lenOfACL = len(allCL)
+
+    # wait for new message...
+    while True:
+
+        chatlist = driver.find_element(By.ID, 'mCSB_2_container')
+        allCL = chatlist.find_elements_by_tag_name('div')
+
+        if (len(allCL) > lenOfACL): # you have new message
+            for i in range(len(allCL)-lenOfACL):
+                LastMessage = allCL[-1-(i-1)]
+                print(LastMessage.text)
+
+
+
+
+
+            lenOfACL = len(allCL) # update length of ul
+        sleep(5)
+
+
+
+
 if __name__ == '__main__':
     try:
+        a = 0
         IsChatRoom()
-        umm = input("채팅 입력 시스템이 시작될 예정입니다. N 혹은 n 을 입력하여 취소 및 시스템을 완전히 종료하고, 다른 아무 키나 입력하여 계속 진행하세요.")
-        if umm == 'n' | umm == 'N':
-            exit()
-        while True:
-            text = input("전송할 텍스트를 입력하세요. >>>")
-            InputChatSystem(text)
+        a = 1
+        AfterAll()
     except Exception as e:
         print(e)
+        if a == 0:
+            print('오류 발생으로 전단계 실행')
+            IsChatRoom()
+        elif a == 1:
+            print('오류 발생으로 전단계 실행')
+            AfterAll()
+        else:
+            input("엔터를 눌러 시스템을 종료하십시오.")
+            exit()
