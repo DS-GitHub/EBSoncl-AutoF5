@@ -9,10 +9,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from time import sleep
 
+system("title AUTOF5 By Dillot")
+system("mode 45,50")
+system("color 0A")
+
 while True:
     global MSGNUM, MSG
     print("환영합니다! 본 프로그램에 입력된 모든 정보는 절대 이용목적 이외의 목적으로 사용되지 않으며, 이용목적(로그인) 달성 시 지체 없이 파기됩니다. 개인정보 책임자: '조동성' *본 프로그램 사용 시 발생하는 모든 책임(개인정보 관련 제외)은 사용자 본인에게 귀속됩니다.*")
-    print("AutoF5(with Firefox)\nCopyright (C) Dillot. All rights reserved.\n본 프로그램은 자유롭게 배포, 사용이 가능하며, 파일의 어떠한 2차 수정을 금합니다.\n\n")
+    print("\nAutoF5(with Firefox)\nCopyright (C) Dillot. All rights reserved.\n본 프로그램은 자유롭게 배포, 사용이 가능하며, 파일의 어떠한 2차 수정을 금합니다.\n\n")
     ID = input("EBS 온라인클래스 계정 아이디를 입력하세요.\n >>>")
     PW = input("EBS 온라인클래스 계정 비밀번호를 입력하세요.\n >>>")
     try:
@@ -63,11 +67,11 @@ print("개인정보(비밀번호)가 프로그램 메모리에서 파기되었�
 login.click()
 system('cls')
 print("작동중...")
-time.sleep(5)
+time.sleep(3)
 
 # GoChatting
 driver.get('https://sel3.ebsoc.co.kr/chatting')
-time.sleep(4)
+time.sleep(3)
 
 # IsChatRoom
 def IsChatRoom():
@@ -109,7 +113,7 @@ def Main():
         except exceptions.TimeoutException:
             print(f"{count}번째 시도 성공")
             print("자동 입장 단계가 완료되어 다음 단계로 진행합니다.")
-            time.sleep(3)
+            time.sleep(2)
             another_window = list(set(driver.window_handles) - {driver.current_window_handle})[0]
             driver.switch_to.window(another_window)
             check = 1
@@ -151,13 +155,21 @@ def InputChatSystem(msg):
         print(e)
 
 def AfterAll():
-    umm = input("채팅 입력 시스템이 시작될 예정입니다. N 혹은 n 을 입력하여 취소 및 시스템을 완전히 종료하고, 다른 아무 키나 입력하여 계속 진행하세요.")
+    umm = input("====================\n채팅 입력 시스템이 시작될 예정입니다. N 혹은 n 을 입력하여 취소 및 시스템을 완전히 종료하고, 다른 아무 키나 입력하여 계속 진행하세요.")
     if (umm == 'n') or (umm == 'N'):
         exit()
     while True:
         text = input("전송할 텍스트를 입력하세요. >>>")
         if text == 'exit()':
+            print("명령에 의해 시스템을 종료합니다.")
+            break
+        elif text == 'exit(tab)':
+            print("명령에 의해 탭과 시스템을 종료합니다.")
+            driver.close()
+            break
+        elif text == 'exit(complete)':
             print("명령에 의해 시스템을 완전히 종료합니다.")
+            driver.quit()
             break
         elif text == 'len(students)':
             element = driver.find_elements(By.CSS_SELECTOR, '.count')[-1].text
@@ -165,28 +177,15 @@ def AfterAll():
             continue
         elif text == 'students':
             html_list = driver.find_element(By.ID, "mCSB_1_container")
-            print('-----------------1')
-            print(html_list)
-            print('-----------------2')
             html_list_ = html_list.find_element(By.TAG_NAME, "ul")
-            print(html_list_)
-            print('-----------------3')
             items = html_list_.find_elements(By.TAG_NAME, "li")
-            print(items)
-            print('-----------------4')
             students = []
             for item in items:
                 try:
-                    temp = item.find_element(By.XPATH, '//a[@href="#"]').text
+                    temp = (item.find_element(By.XPATH, '//a[@href="#"]').text).lstrip("person\n")
                 except Exception as error:
                     print(error)
                 students.append(temp)
-                print(item)
-                print('-----------------5')
-                print(temp)
-                print('-----------------6')
-            print(students)
-            print('-----------------7')
             students = ', '.join(students)
             print(f"명령에 의해 채팅방 전체 인원이 집계되었습니다. : {students}")
             continue
@@ -196,7 +195,7 @@ def AfterAll():
             items = html_list_.find_elements(By.CSS_SELECTOR, ".logout")
             students = []
             for item in items:
-                temp = item.find_element(By.XPATH, '//a[@href="#"]').text
+                temp = (item.find_element(By.XPATH, '//a[@href="#"]').text).lstrip("person\n")
                 students.append(temp)
             students = ', '.join(students)
             print(f"명령에 의해 채팅방 오프라인 인원이 집계되었습니다. : {students}")
@@ -205,20 +204,20 @@ def AfterAll():
             html_list = driver.find_element(By.ID, "mCSB_1_container")
             html_list_ = html_list.find_element(By.TAG_NAME, "ul")
             items = html_list_.find_elements(By.TAG_NAME, "li")
-            all_students = []
+            offitems = html_list_.find_elements(By.CSS_SELECTOR, ".logout")
+            students = []
+            for item in offitems:
+                items.remove(item)
             for item in items:
-                temp = item.find_element(By.XPATH, '//a[@href="#"]').text
-                all_students.append(temp)
-            items = html_list_.find_elements(By.CSS_SELECTOR, ".logout")
-            off_students = []
-            for item in items:
-                temp = item.find_element(By.XPATH, '//a[@href="#"]').text
-                off_students.append(temp)
-            for student in all_students:
-                if student in off_students:
-                    all_students.remove(student)
-            students = ', '.join(all_students)
+                temp = (item.find_element(By.XPATH, '//a[@href="#"]').text).lstrip("person\n")
+                students.append(temp)
+            students = ', '.join(students)
             print(f"명령에 의해 채팅방 온라인 인원이 집계되었습니다. : {students}")
+            continue
+        elif text == "listen()":
+            print("명령에 의한 리스너 실행중...")
+            print("--------------------")
+            ChatListener()
             continue
 
         InputChatSystem(text)
@@ -227,26 +226,46 @@ def ChatListener():
     chatlist = driver.find_element(By.ID, 'mCSB_2_container')
 
     # get list of currently displayed messages
-    allCL = chatlist.find_elements_by_tag_name('div')
+    allCL = chatlist.find_elements(By.TAG_NAME, 'div')
+    for chat in allCL:
+        author = 'SYSTEM'
+        try:
+            profile = chat.find_element(By.XPATH, ".//div[@class=\"profile\"]")
+            author = profile.find_element(By.XPATH, './/span[@class="name"]').text
+        except exceptions.NoSuchElementException:
+            pass
+        
+        chatting = (chat.text).replace("person\n", "")
+        print("[" + author + "] " + chatting.replace("person", ""))
     lenOfACL = len(allCL)
 
     # wait for new message...
     while True:
 
         chatlist = driver.find_element(By.ID, 'mCSB_2_container')
-        allCL = chatlist.find_elements_by_tag_name('div')
+        allCL = chatlist.find_elements(By.TAG_NAME, 'div')
 
         if (len(allCL) > lenOfACL): # you have new message
-            for i in range(len(allCL)-lenOfACL):
-                LastMessage = allCL[-1-(i-1)]
-                print(LastMessage.text)
-
-
-
-
+            LastMessage = allCL[-1]
+            LastAuthor = 'SYSTEM'
+            try:
+                LastProfile = LastMessage.find_element(By.XPATH, ".//div[@class=\"profile\"]")
+                LastAuthor = LastProfile.find_element(By.XPATH, './/span[@class="name"]').text
+            except exceptions.NoSuchElementException:
+                pass
+            LM = (LastMessage.text).replace("person\n", "")
+            print("[" + LastAuthor + "] " + LM.replace("person", ""))
 
             lenOfACL = len(allCL) # update length of ul
-        sleep(5)
+        
+
+        chatcontent = driver.find_elements(By.TAG_NAME, 'textarea')[-1].get_attribute('value')
+        if chatcontent == "listen(stop)":
+            print("--------------------")
+            print("명령에 의해 리스너 실행을 종료합니다.")
+            break
+
+        sleep(3)
 
 
 
