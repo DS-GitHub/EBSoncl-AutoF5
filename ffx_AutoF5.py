@@ -154,6 +154,20 @@ def InputChatSystem(msg):
     except Exception as e:
         print(e)
 
+## C O M M A N D S _ L I S T ##
+# [ EXIT COMMANDS ]
+# exit() : exit system
+# exit(tab) : exit system, close tab
+# exit(complete) : exit all related to this program
+# [ STUDENTS COMMANDS ]
+# len(students) : count students(output: (online)/(all))
+# students : print list of all students
+# online_students : print list of online students
+# offline_students : print list of offline students
+# [ LISTENER COMMANDS ]
+# listen() : Starts chat listener
+# listen(stop) : When this command is input in chat box, Stops chat listener
+        
 def AfterAll():
     umm = input("====================\n채팅 입력 시스템이 시작될 예정입니다. N 혹은 n 을 입력하여 취소 및 시스템을 완전히 종료하고, 다른 아무 키나 입력하여 계속 진행하세요.")
     if (umm == 'n') or (umm == 'N'):
