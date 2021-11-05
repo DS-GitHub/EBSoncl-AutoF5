@@ -1,6 +1,5 @@
 # AutoF5(with Firefox)
 # Copyright (C) Dillot. All rights reserved. ANY EDITTING ON THIS FILE(CODE) IS DISALLOWED WITHOUT AUTHOR'S PERMISSION.
-import time
 from os import system
 from selenium import webdriver
 from selenium.common import exceptions
@@ -8,9 +7,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from time import sleep
+from datetime import datetime, timedelta, timezone
+
+tz = timezone(timedelta(hours=9))
 
 system("title AUTOF5 By Dillot")
-system("mode 45,50")
+system("mode 45,1000")
 system("color 0A")
 
 while True:
@@ -67,11 +69,11 @@ print("개인정보(비밀번호)가 프로그램 메모리에서 파기되었�
 login.click()
 system('cls')
 print("작동중...")
-time.sleep(3)
+sleep(3)
 
 # GoChatting
 driver.get('https://sel3.ebsoc.co.kr/chatting')
-time.sleep(3)
+sleep(3)
 
 # IsChatRoom
 def IsChatRoom():
@@ -83,7 +85,7 @@ def IsChatRoom():
         except exceptions.NoSuchElementException:
             print("입장하기 버튼이 확인되지 않아 3초 간격으로 새로고침합니다.")
             driver.refresh()
-        time.sleep(3)
+        sleep(3)
     # GOTO Main
     Main()
 
@@ -100,7 +102,7 @@ def Main():
             # GOTO IsChatRoom
             IsChatRoom()
         enterchat.click()
-        time.sleep(0.1)
+        sleep(0.1)
         enteralert = driver.switch_to.alert
         enteralert.accept()
         try:
@@ -113,7 +115,7 @@ def Main():
         except exceptions.TimeoutException:
             print(f"{count}번째 시도 성공")
             print("자동 입장 단계가 완료되어 다음 단계로 진행합니다.")
-            time.sleep(2)
+            sleep(2)
             another_window = list(set(driver.window_handles) - {driver.current_window_handle})[0]
             driver.switch_to.window(another_window)
             check = 1
@@ -128,13 +130,13 @@ def Main():
                 continue
             input(f"채팅방 입장 및 채팅 {MSGNUM}개 자동 입력에 모두 성공했습니다. 엔터를 눌러 시스템을 종료하세요.")
             break
-        time.sleep(1)
+        sleep(1)
         driver.refresh()
-        time.sleep(3)
+        sleep(3)
 
 def InputChat(NOW):
     try:
-        time.sleep(2)
+        sleep(2)
         inputchat = driver.find_element(By.XPATH, '/html/body/div[1]/div/div/div/div[2]/div[2]/div[2]/textarea')
         inputchat.send_keys(MSG[NOW])
         sendbutton = driver.find_element(By.CSS_SELECTOR, '.btn.btn_md.btn_darkblue')
@@ -167,10 +169,13 @@ def InputChatSystem(msg):
 # [ LISTENER COMMANDS ]
 # listen() : Starts chat listener
 # listen(stop) : When this command is input in chat box, Stops chat listener
-        
+
 def AfterAll():
-    umm = input("====================\n채팅 입력 시스템이 시작될 예정입니다. N 혹은 n 을 입력하여 취소 및 시스템을 완전히 종료하고, 다른 아무 키나 입력하여 계속 진행하세요.")
+    umm = input("====================\n채팅 입력 시스템이 시작될 예정입니다. N 혹은 n 을 입력하여 취소 및 시스템을 종료하고, exit을 입력하여 시스템을 완전히 종료하고, 다른 아무 키나 입력하여 계속 진행하세요.")
     if (umm == 'n') or (umm == 'N'):
+        exit()
+    elif umm == 'exit':
+        driver.quit()
         exit()
     while True:
         text = input("전송할 텍스트를 입력하세요. >>>")
@@ -238,9 +243,20 @@ def AfterAll():
 
 def ChatListener():
     chatlist = driver.find_element(By.ID, 'mCSB_2_container')
-
     # get list of currently displayed messages
     allCL = chatlist.find_elements(By.TAG_NAME, 'div')
+    if allCL[0].get_attribute('class') == 'hidden-data':
+        hiddenCL = allCL[0].find_elements(By.TAG_NAME, 'div')
+        for hiddenchat in hiddenCL:
+            author = 'SYSTEM'
+            try:
+                profile = hiddenchat.find_element(By.XPATH, ".//div[@class=\"profile\"]")
+                author = profile.find_element(By.XPATH, './/span[@class="name"]').text
+            except exceptions.NoSuchElementException:
+                pass
+            chatting = (hiddenchat.text).replace("person\n", "")
+            print("[" + author + "] " + chatting.replace("person", ""))
+        allCL = allCL.pop(0)
     for chat in allCL:
         author = 'SYSTEM'
         try:
@@ -252,14 +268,12 @@ def ChatListener():
         chatting = (chat.text).replace("person\n", "")
         print("[" + author + "] " + chatting.replace("person", ""))
     lenOfACL = len(allCL)
-
     # wait for new message...
     while True:
-
         chatlist = driver.find_element(By.ID, 'mCSB_2_container')
         allCL = chatlist.find_elements(By.TAG_NAME, 'div')
-
         if (len(allCL) > lenOfACL): # you have new message
+            now = datetime.strptime(datetime.now(tz=tz), "%H:%M:%S")
             LastMessage = allCL[-1]
             LastAuthor = 'SYSTEM'
             try:
@@ -267,22 +281,17 @@ def ChatListener():
                 LastAuthor = LastProfile.find_element(By.XPATH, './/span[@class="name"]').text
             except exceptions.NoSuchElementException:
                 pass
+            LM = (LastMessage.text).lstrip(LastAuthor)
             LM = (LastMessage.text).replace("person\n", "")
-            print("[" + LastAuthor + "] " + LM.replace("person", ""))
-
+            print(now + " [" + LastAuthor + "] " + LM.replace("person", ""))
             lenOfACL = len(allCL) # update length of ul
         
-
         chatcontent = driver.find_elements(By.TAG_NAME, 'textarea')[-1].get_attribute('value')
         if chatcontent == "listen(stop)":
             print("--------------------")
             print("명령에 의해 리스너 실행을 종료합니다.")
             break
-
-        sleep(3)
-
-
-
+        sleep(1)
 
 if __name__ == '__main__':
     try:
